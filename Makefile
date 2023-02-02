@@ -1,7 +1,7 @@
 SRCS =	\
 		main.cpp \
-		test_stack.cpp \
-		test_vector.cpp \
+		tests/test_stack.cpp \
+		tests/test_vector.cpp \
 		\
 
 OBJS = $(SRCS:.cpp=.o)
@@ -10,6 +10,7 @@ NAME = ft_containers
 
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -g -std=c++98
+INCS	= -I. -Icontainers
 
 #ifeq ($(STACK), 1)
 #	VAR = -D STACK=1
@@ -20,10 +21,10 @@ CFLAGS = -Wall -Wextra -Werror -g -std=c++98
 all: $(NAME)
 
 .cpp.o:
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(INCS) $(CFLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+	$(CC) $(INCS) $(OBJS) -o $(NAME)
 
 clean:
 	rm -rf $(OBJS)

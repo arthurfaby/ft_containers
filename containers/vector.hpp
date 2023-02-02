@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 13:29:49 by afaby             #+#    #+#             */
-/*   Updated: 2023/01/30 18:27:49 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/02 09:48:13 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -348,9 +348,6 @@ public:
 						this->reserve(_capacity * 2);
 				}
 				res = this->begin();
-				std::cout << "index_pos : " << index_pos << std::endl;
-				std::cout << "_data : " << _data << std::endl;
-				std::cout << "_size : " << _size << std::endl;
 				std::memmove(_data + index_pos + 1, _data + index_pos, _size - index_pos);
 				_alloc.construct(_data + index_pos, value);
 				res += index_pos;
