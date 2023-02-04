@@ -6,17 +6,19 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/02 11:23:04 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/02 16:49:18 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/04 17:25:05 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include "random_access_iterator_tag.hpp"
+
 namespace ft
 {
 
 template<class Iter>
-struct iterator_traits
+class iterator_traits
 {
 public:
 	typedef typename Iter::difference_type		difference_type;
@@ -27,25 +29,25 @@ public:
 };
 
 template<class T>
-struct iterator_traits<T*>
+class iterator_traits<T*>
 {
 public:
 	typedef std::ptrdiff_t						difference_type;
 	typedef T									value_type;
 	typedef T*									pointer;
 	typedef T&									reference;
-	typedef std::random_access_iterator_tag		iterator_category;
+	typedef ft::random_access_iterator_tag		iterator_category;
 };
 
 template<class T>
-struct iterator_traits<const T*>
+class iterator_traits<const T*>
 {
 public:
 	typedef std::ptrdiff_t						difference_type;
 	typedef T									value_type;
 	typedef const T*							pointer;
 	typedef const T&							reference;
-	typedef std::random_access_iterator_tag		iterator_category;
+	typedef ft::random_access_iterator_tag		iterator_category;
 };
 
 }

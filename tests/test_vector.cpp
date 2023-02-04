@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/24 16:05:41 by afaby             #+#    #+#             */
-/*   Updated: 2023/01/30 18:31:33 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/03 10:06:55 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -889,7 +889,7 @@ void	test_vector_insert(std::ofstream &ftfs, std::ofstream &stdfs)
 		print_std_vector(v, stdfs);
 		pos = v.begin();
 		v.insert(pos, -42);
-		ftfs << "v : ";
+		stdfs << "v : ";
 		print_std_vector(v, stdfs);
 		clock_t	end = clock();
 		stdms = end - start;
@@ -927,7 +927,59 @@ void	test_vector_insert(std::ofstream &ftfs, std::ofstream &stdfs)
 		ftfs << "ft::vector took " << ftms << "us." << RESET << std::endl;
 	}
 }
+ 
+void	test_vector_swap(std::ofstream &ftfs, std::ofstream &stdfs)
+{
+	size_t	stdms;
+	stdfs << BOLD << CYAN << "========== std::vector (swap) =========" << RESET << std::endl;
+	{
+		clock_t	start = clock();
 
+		std::vector<int>	v(10, 42);
+		std::vector<int>	v2(10, -42);
+
+		stdfs << "v : ";
+		print_std_vector(v, stdfs);
+		stdfs << "v2 : ";
+		print_std_vector(v2, stdfs);
+		stdfs << "v.swap(v2);" << std::endl;
+		v.swap(v2);
+		stdfs << "v : ";
+		print_std_vector(v, stdfs);
+		stdfs << "v2 : ";
+		print_std_vector(v2, stdfs);
+		
+		clock_t	end = clock();
+		stdms = end - start;
+		stdfs << YELLOW << "std::vector took : " << stdms << "us." << RESET << std::endl;
+	}
+	//ftfs << BOLD << CYAN << "========== ft::vector (assign) =========" << RESET << std::endl;
+	{
+		clock_t	start = clock();
+
+		ft::vector<int>	v(10, 42);
+		ft::vector<int>	v2(10, -42);
+
+		ftfs << "v : ";
+		print_ft_vector(v, ftfs);
+		ftfs << "v2 : ";
+		print_ft_vector(v2, ftfs);
+		ftfs << "v.swap(v2);" << std::endl;
+		v.swap(v2);
+		ftfs << "v : ";
+		print_ft_vector(v, ftfs);
+		ftfs << "v2 : ";
+		print_ft_vector(v2, ftfs);
+		
+		clock_t	end = clock();
+		size_t	ftms = end - start;
+		if (ftms > 20 * stdms)
+			ftfs << LIGHTRED;
+		else
+			ftfs << LIGHTGREEN;
+		ftfs << "ft::vector took " << ftms << "us." << RESET << std::endl;
+	}
+}
 
 /*
 void	test_vector_insert(std::ofstream &ftfs, std::ofstream &stdfs);

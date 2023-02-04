@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   enable_if.hpp                                      :+:      :+:    :+:   */
+/*   distance.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/02 09:53:22 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/02 17:29:31 by afaby            ###   ########.fr       */
+/*   Created: 2023/02/04 16:05:51 by afaby             #+#    #+#             */
+/*   Updated: 2023/02/04 16:08:52 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,16 @@
 namespace ft
 {
 
-template<bool B, class T = void>
-struct enable_if {};
-
-template<class T>
-struct enable_if<true, T>
+template<class InputIt>
+std::ptrdiff_t	distance(InputIt first, InputIt last)
 {
-	typedef T type;
-};
+	std::ptrdiff_t res = 0;
+	while (first != last)
+	{
+		first++;
+		res++;
+	}
+	return (res);
+}
 
 }

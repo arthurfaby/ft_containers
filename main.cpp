@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 13:22:05 by afaby             #+#    #+#             */
-/*   Updated: 2023/01/30 17:00:03 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/03 10:07:00 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,10 @@ int	main(void)
 	//	test_vector_erase(ft_fs, std_fs);
 		test_vector_push_back(ft_fs, std_fs);
 		test_vector_pop_back(ft_fs, std_fs);
-		test_vector_insert(ft_fs, std_fs);
 	//	test_vector_resize(ft_fs, std_fs);
-	//	test_vector_swap(ft_fs, std_fs);
+		test_vector_swap(ft_fs, std_fs);
 	//	test_vector_comparisons(ft_fs, std_fs);
+		test_vector_insert(ft_fs, std_fs);
 
 	}
 	ft_fs.close();
