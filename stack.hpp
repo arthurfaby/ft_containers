@@ -6,18 +6,20 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 13:31:09 by afaby             #+#    #+#             */
-/*   Updated: 2023/01/30 13:32:04 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/06 13:42:42 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#ifndef STACK_HPP
+# define STACK_HPP
 
-#include <vector>
+#include "vector.hpp"
 
 namespace ft
 {
 
-template < class T, class Container = std::vector< T > > // template < class T, class Container = ft::vector<T> >
+template < class T, class Container = ft::vector< T > >
 class stack
 {
 
@@ -129,3 +131,6 @@ bool	operator<=( const ft::stack< T, Container >& lhs, const ft::stack< T, Conta
 }
 
 }
+
+
+#endif

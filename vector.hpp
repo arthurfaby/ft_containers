@@ -6,13 +6,14 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 13:29:49 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/04 18:47:20 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/06 18:48:06 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#ifndef VECTOR_HPP
+# define VECTOR_HPP
 
-#include <vector>
 #include <iterator>
 #include <cstring>
 #include <sstream>
@@ -22,6 +23,13 @@
 #include "utils/random_access_iterator.hpp"
 #include "utils/distance.hpp"
 #include "utils/reverse_iterator.hpp"
+
+
+
+#include <iostream>
+
+
+
 
 namespace ft
 {
@@ -43,10 +51,6 @@ public:
 		typedef typename Allocator::const_pointer				const_pointer;
 		typedef typename ft::random_access_iterator<T>			iterator;
 		typedef typename ft::random_access_iterator<const T>	const_iterator;
-		/* typedef typename std::vector<T>::iterator				iterator; */
-		/* typedef typename std::vector<T>::const_iterator			const_iterator; */
-		/* typedef typename std::vector<T>::reverse_iterator		reverse_iterator; */
-		/* typedef typename std::vector<T>::const_reverse_iterator	const_reverse_iterator; */
 		typedef typename ft::reverse_iterator<iterator>			reverse_iterator;
 		typedef typename ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 	
@@ -126,6 +130,7 @@ public:
 					this->clear();
 					_alloc.deallocate(_data, _capacity);
 				}
+				//std::cout << "SIZE : " << _size << std::endl; // "   CAPACITY : " << _capacity << std::endl;
 				_capacity = other._capacity;
 				_size = other._size;
 				_alloc = other._alloc;
@@ -275,27 +280,27 @@ public:
 
 			reverse_iterator			rbegin( void )
 			{
-				reverse_iterator	rit(this->end() - 1);
+				reverse_iterator	rit(this->end());
 
 				return (rit);
 			}
 
 			const_reverse_iterator		rbegin( void ) const
 			{
-				const_reverse_iterator	crit(this->end() - 1);
+				const_reverse_iterator	crit(this->end());
 
 				return (crit);				
 			}
 
 			reverse_iterator			rend( void )
 			{
-				reverse_iterator	rite(this->begin() - 1);
+				reverse_iterator	rite(this->begin());
 
 				return (rite);
 			}
 			const_reverse_iterator		rend( void ) const
 			{
-				const_reverse_iterator	crite(this->begin() - 1);
+				const_reverse_iterator	crite(this->begin());
 
 				return (crite);
 			}
@@ -441,7 +446,13 @@ public:
 				while (count > _capacity)
 					this->check_and_reserve();
 				if (_size > count)
-					_size = count;
+				{
+					while (_size != count)
+					{
+						--_size;
+						_alloc.destroy(_data + _size);
+					}
+				}
 				else if (_size < count)
 				{
 					for (; _size < count; ++_size)
@@ -483,7 +494,7 @@ private:
 		int	dis = ft::distance(first, last);
 		int	index_first = first - this->begin();
 
-		std::memmove(_data + index_first, _data + index_first + dis, sizeof(value_type) * (_size - index_first + dis - 2));
+		std::memmove(_data + index_first, _data + index_first + dis, sizeof(value_type) * (_size - index_first - dis));
 		_size -= dis;
 		return (this->begin() + index_first);
 	}
@@ -494,21 +505,16 @@ private:
 								const Check&,
 								typename ft::enable_if<!ft::is_integral<Check>::value>::type* = 0)
 	{
-		int dis = ft::distance(first, last);
 		int	index_first = first - this->begin();
-		iterator	ite = this->end();
+		int	dis			= ft::distance(first, last);
 
-		_size -= dis;
+		for (size_t i = index_first; i < _size - dis; ++i)
+			_data[i] = _data[i + dis];
 		while (dis)
 		{
-			_alloc.destroy(_data + dis);
-			--dis;
-		}
-		while (last != ite)
-		{
-			_alloc.construct(_data + index_first, *last);
-			++last;
-			++index_first;
+			_size--;
+			_alloc.destroy(_data + _size);
+			dis--;
 		}
 		return (first);
 	}
@@ -521,6 +527,7 @@ private:
 												typename ft::enable_if<ft::is_integral<Check>::value>::type* = 0)
 	{
 		int			index_pos;
+
 
 		index_pos = pos - this->begin();
 		while (_size + count > _capacity)
@@ -540,15 +547,26 @@ private:
 												typename ft::enable_if<!ft::is_integral<Check>::value>::type* = 0)
 	{
 		int			index_pos;
+	
 
 		index_pos = pos - this->begin();
 		while (_size + count > _capacity)
 			this->check_and_reserve();
-		for (size_t i = 0; i < _size - index_pos; ++i)
-			_alloc.construct(_data + index_pos + count + i, _data[index_pos + i]);
+
+		for (size_t i = 0; i < count; ++i)
+			_alloc.construct(_data + _size + i, value_type());
 		_size += count;
-		while (count)
-			_alloc.construct(_data + index_pos + --count, value);
+		for (size_t i = _size - 1; i > index_pos + count - 1; --i)
+			_data[i] = _data[i - count];
+		for (size_t i = 0; i < count; ++i)
+			_data[i + index_pos] = value;
+		/* for (int i = _size - index_pos; i >= 0; --i) */
+		/* 	_alloc.construct(_data + index_pos + count + i, _data[index_pos  + i]); */
+		 /* for (size_t i = 0; i < _size - index_pos; ++i) */
+			/* _alloc.construct(_data + index_pos + count + i, _data[index_pos + i]); */
+		/* _size += count; */
+		/* while (count) */
+			/* _alloc.construct(_data + index_pos + --count, value); */
 		return (this->begin() + index_pos);
 	}
 
@@ -588,12 +606,14 @@ private:
 		while (_size + count > _capacity)
 			this->check_and_reserve();
 
-		for (size_t i = 0; i < _size - index_pos; ++i)
-			_alloc.construct(_data + index_pos + count + i, _data[index_pos + i]);
-	//	std::memmove(_data + index_pos + count, _data + index_pos, sizeof(value_type) * (_size - index_pos));
+		for (size_t i = 0; i < count; ++i)
+			_alloc.construct(_data + _size + i, value_type());
 		_size += count;
-		while (count)
-			_alloc.construct(_data + index_pos + --count, *(--last));
+		for (size_t i = _size - 1; i > index_pos + count - 1; --i)
+			_data[i] = _data[i - count];
+		for (size_t i = 0; i < count; ++i, ++first)
+			_data[i + index_pos] = *first;
+
 		return (this->begin() + index_pos);
 	}
 
@@ -649,3 +669,6 @@ void	swap(ft::vector<T, Allocator>& lhs, ft::vector<T, Allocator>& rhs)
 
 
 }
+
+
+#endif
