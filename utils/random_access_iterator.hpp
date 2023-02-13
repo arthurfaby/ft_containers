@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/04 09:36:23 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/10 14:32:16 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/13 19:09:05 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,17 @@ class random_access_iterator
 {
 
 public:
-	typedef std::ptrdiff_t					difference_type;
-	typedef T								value_type;
-	typedef T*								pointer;
-	typedef T&								reference;
-	typedef ft::random_access_iterator_tag	iterator_category;
+	/* typedef std::ptrdiff_t					difference_type; */
+	/* typedef T								value_type; */
+	/* typedef T*								pointer; */
+	/* typedef T&								reference; */
+	/* typedef ft::random_access_iterator_tag	iterator_category; */
 
-/* 	typedef typename ft::iterator_traits<T*>::difference_type	difference_type; */
-/* 	typedef typename ft::iterator_traits<T*>::value_type			value_type; */
-/* 	typedef typename ft::iterator_traits<T*>::pointer			pointer; */
-/* 	typedef typename ft::iterator_traits<T*>::reference			reference; */
-/* 	typedef typename ft::iterator_traits<T*>::iterator_category	iterator_category; */
+	typedef typename ft::iterator_traits<T>::difference_type	difference_type;
+	typedef typename ft::iterator_traits<T>::value_type			value_type;
+	typedef typename ft::iterator_traits<T>::pointer			pointer;
+	typedef typename ft::iterator_traits<T>::reference			reference;
+	typedef ft::random_access_iterator_tag						iterator_category;
 
 	// Constructions
 	random_access_iterator(void) :
@@ -42,7 +42,7 @@ public:
 	{
 	}
 
-	random_access_iterator(value_type* target) :
+	random_access_iterator(pointer target) :
 		_target(target)
 	{
 	}
