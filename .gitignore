@@ -34,4 +34,5 @@ ft_containers
 
 ./containers_test/
 ./42TESTERS-CONTAINERS/
+./ft_containers-tester/
 **.swp
