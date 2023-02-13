@@ -6,103 +6,142 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 19:11:14 by afaby             #+#    #+#             */
-/*   Updated: 2023/01/21 11:55:37 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/13 10:41:31 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#pragma once
+
+#include "./utils/pair.hpp"
+#include "./utils/RBTree.hpp"
+
+#include <cstddef>
 
 namespace ft
 {
 
-template < class Key, class T > 
-/*
 template <
 	class Key,
 	class T,
 	class Compare = std::less<Key>,
-	class Allocator = std::allocator<ft::pair<const Key, T>>
+	class Allocator = std::allocator<ft::pair<const Key, T> >
 >
-*/
+
 class map
 {
-
-// Member types											CPPREFERENCE
-	// key_type					--> Key
-	// mapped_type				--> T
-	// value_type				--> ft::pair<const Key, T>
-	// size_type				--> unsigned int	(== size_t)
-	// difference_type			--> int	(== ptrdiff_t)
-	// key_compare				--> Compare
-	// allocator_type			--> Allocator
-	// reference				--> value_type&
-	// const_reference			--> const value_type&
-	// pointer					--> Allocator::pointer
-	// const_pointer			--> Allocator::const_pointer
-	// iterator					--> LegacyBidirectionalIterator to value_type
-	// const_iterator			--> LegacyBidirectionalIterator to const value_type
-	// reverse_iterator			--> ft::reverse_iterator<iterator>
-	// const_reverse_iterator	--> ft::reverse_oter<const_iterator>
-
-// Member types											CPLUSPLUS
-	// key_type					--> Key
-	// mapped_type				--> T
-	// value_type				--> ft::pair<const key_type, mapped_type>
-	// key_compare				--> Compare																					// (defaults to: std::less<key_type>)
-	// value_compare			--> Nested function class to compare elements												// (see std::map::value_comp doc)
-	// allocator_type			--> Alloc																					// (default to std::allocator<value_type>)
-	// reference				--> allocator_type::reference																// (for the default allocator: value_type&)
-	// const_reference			--> allocator_type::const_reference															// (for the default allocator: const value_type&)
-	// pointer					--> allocator_type::pointer																	// (for the default allocator: value_type*)
-	// const_pointer			--> allocator_type::const_pointer															// (for the default allocator: const value_type*)
-	// iterator					--> a bidirectional iterator to value_type													// (convertible to const_iterator)
-	// const_iterator			--> a bidirectional to const value_type
-	// reverse_iterator			--> ft::reverse_iterator<iterator>
-	// const_reverse_iterator	--> ft::reverse_iterator<const_iterator>
-	// difference				--> a signed intergral type, identical to: ft::iterator_traits<iterator>::difference_type	// (== ptrdiff_t)
-	// size_type				--> an unsigned integral type that can represent any non-negative value of difference_type	// (== size_t)
-
-
 // Member classes
 	// value_compare
 
+
 public:
+
+	typedef Key																			key_type;
+	typedef T																			mapped_type;
+	typedef ft::pair<const Key, T>														value_type;
+	typedef size_t																		size_type;
+	typedef	std::ptrdiff_t																difference_type;
+	typedef Compare																		key_compare;
+	typedef Allocator																	allocator_type;
+	typedef value_type&																	reference;
+	typedef const value_type&															const_reference;
+	typedef typename Allocator::pointer													pointer;
+	typedef typename Allocator::const_pointer											const_pointer;
+	typedef ft::RBTree_iterator<const Key, T, Compare, Allocator>						iterator;
+	typedef ft::RBTree_iterator<const Key, const T, Compare, Allocator>					const_iterator;
+	/* typedef typename ft::RBTree<const Key, T, Compare, Allocator>::iterator				iterator; */
+	/* typedef typename ft::RBTree<const Key, const T, Compare, Allocator>::const_iterator	const_iterator; */
+
+	// ITERATORS
 	// Member functions
 
 		// Constructors :
-			// map( void );
-			/*
+			map( void )
+			{
+			}
+			
 			 explicit map( const key_compare& comp,
-							const allocator_type& alloc = allocator_type() );
-			*/
-			/*
+							const allocator_type& alloc = allocator_type() ) :
+				_compare_function(comp),
+				_alloc(alloc)
+			{
+
+			}
+
 			template < class InputIt >
 			map( InputIt first,
 					InputIt last,
-					const key_compare& = key_compare(),
-					const allocator_type& alloc = allocator_type() );
-			*/
+					const key_compare& key_cmp = key_compare(),
+					const allocator_type& alloc = allocator_type() ) :
+				_compare_function(key_cmp),
+				_alloc(alloc)
+			{
+				while (first != last)
+				{
+					this->insert(ft::make_pair(first->first, first->second));
+					first++;
+				}
+			}
+
 			// map( const map& other );
 
 		// Destructor :
-			// ~map( void );
+			~map( void )
+			{
+			}
 
 		// Copy assignement operator
 			// map&					operator=( const map& other );
 
 		// Get allocator
-			// allocator_type		get_alocator( void ) const;
+			allocator_type		get_alocator( void ) const
+			{
+				return (_alloc);
+			}
 
 		// Element access
-			// mapped_type&			at( const key_type& key );
-			// const mapped_type&	at( const key_type& key ) const;
+			mapped_type&			at( const key_type& key )
+			{
+				node_type	*node = _tree.find(key);
+				if (!node)
+					throw std::out_of_range("map::at");
+				return (node->getValue());
+			}
+			const mapped_type&	at( const key_type& key ) const
+			{
+				node_type	*node = _tree.find(key);
+				if (!node)
+					throw std::out_of_range("map::at");
+				return (node->getValue());
+			}
 
-			// mapped_type&			operator[]( const mapped_type& key );
+			mapped_type&			operator[]( const mapped_type& key )
+			{
+				node_type	*node = _tree.find(key);
+				if (!node)
+					throw std::out_of_range("map::operator[]");
+				return (node->getValue());
+			}
 
 		// Iterators :
-			// iterator					begin( void );
-			// const_iterator			begin( void ) const;
+			iterator				begin( void )
+			{
+				return (_tree.begin());
+			}
 
-			// iterator					end( void );
-			// const_iterator			end( void ) const;
+			const_iterator			begin( void ) const
+			{
+				return (_tree.begin());
+			}
+
+			iterator					end( void )
+			{
+				return (_tree.end());
+			}
+
+			const_iterator			end( void ) const
+			{
+				return (_tree.end());
+			}
 
 			// reverse_iterator			rbegin( void );
 			// const_reverse_iterator	rbegin( void ) const;
@@ -111,27 +150,61 @@ public:
 			// const_reverse_iterator	rend( void ) const;
 
 		// Capacity :
-			// bool			empty( void ) const;
+			bool		empty( void ) const
+			{
+				return (_tree.empty());
+			}
 
-			// size_type	size( void ) const;
+			size_type	size( void ) const
+			{
+				return (_tree.size());
+			}
 
-			// size_type	max_size( void ) const;
+			size_type	max_size( void ) const
+			{
+				return (_alloc.max_size());
+			}
 
 		// Modifiers :
-			// void						clear( void );
+			void						clear( void )
+			{
+				_tree.clear();
+			}
 
-			// ft::pair<iterator, bool>	insert( const value_type& value );
+			ft::pair<iterator, bool>	insert( const value_type& value )
+			{
+				_tree.insert(value);
+				return (ft::make_pair<iterator, bool>(iterator(), true));
+			}
+
 			// iterator					insert( iterator pos, const value_type& value );
 			/*
 			template <class InputIt>
 			void						insert( InputIt first, InputIt last );
 			*/
 
-			// void						erase( iterator pos );
-			// void						erase( iterator first, iterator last );
-			// size_type				erase( const key_type& key );
+			void						erase( iterator pos )
+			{
+				_tree.erase(pos);
+			}
 
-			// void						swap( map& other );
+			void						erase( iterator first, iterator last )
+			{
+				while (first != last)
+				{
+					_tree.erase(first);
+					first++;
+				}
+			}
+
+			//size_type				erase( const key_type& key );
+
+			void						swap( map& other )
+			{
+				std::swap(_compare_function, other._compare_function);
+				std::swap(_alloc, other._alloc);
+				std::swap(_tree, other._tree);
+			}
 
 		// Lookup
 			// size_type								count( const key_type& key ) const;
@@ -156,6 +229,15 @@ public:
 protected:
 
 private:
+
+	typedef	typename ft::RBTree<const key_type, mapped_type, key_compare, allocator_type>::node_type	node_type;
+
+
+	key_compare		_compare_function;
+	allocator_type	_alloc;
+	
+
+	RBTree<const key_type, mapped_type, key_compare, allocator_type> _tree;
 
 };
 

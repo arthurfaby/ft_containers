@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/24 16:05:41 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/03 10:06:55 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/07 15:04:31 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -675,8 +675,8 @@ void	test_vector_reverse_iterator(std::ofstream &ftfs, std::ofstream &stdfs)
 		clock_t	start = clock();
 
 		ft::vector<int>						v(10, 42);
-		std::vector<int>::reverse_iterator	it	= v.rbegin();
-		std::vector<int>::reverse_iterator	ite	= v.rend();
+		ft::vector<int>::reverse_iterator	it	= v.rbegin();
+		ft::vector<int>::reverse_iterator	ite	= v.rend();
 
 		++it;
 		it++;

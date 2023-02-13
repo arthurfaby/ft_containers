@@ -6,13 +6,15 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 10:14:50 by afaby             #+#    #+#             */
-/*   Updated: 2023/01/23 12:23:10 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/07 15:03:58 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.hpp"
 #include <stack>
 #include "stack.hpp"
+#include <vector>
+
 
 /*
 void	test_stack_creation(void)

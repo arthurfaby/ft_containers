@@ -6,13 +6,14 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 13:22:05 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/03 10:07:00 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/12 11:33:45 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include	"header.hpp"
 #define		STACK 0
-#define		VECTOR 1
+#define		VECTOR 0
+#define		RBTREE	1
 
 
 int	main(void)
@@ -57,7 +58,6 @@ int	main(void)
 		test_vector_swap(ft_fs, std_fs);
 	//	test_vector_comparisons(ft_fs, std_fs);
 		test_vector_insert(ft_fs, std_fs);
-
 	}
 	ft_fs.close();
 	std_fs.close();

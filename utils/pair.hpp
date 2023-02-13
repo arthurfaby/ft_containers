@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/02 15:00:51 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/02 16:46:44 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/10 14:13:47 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,12 @@ public:
 	pair(void) :
 		first(first_type()),
 		second(second_type())
+	{
+	}
+
+	pair(const pair& other) :
+		first(other.first),
+		second(other.second)
 	{
 	}
 

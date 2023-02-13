@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/04 09:36:23 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/06 10:07:35 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/10 14:32:16 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,11 @@ public:
 		return (_target[pos]);
 	}
 
+	pointer	base(void) const
+	{
+		return (_target);
+	}
+
  	// Increment / Decrement operators
 	random_access_iterator&	operator++(void)
 	{
@@ -177,10 +182,6 @@ public:
 	}
 
 
-	pointer	base(void) const
-	{
-		return (_target);
-	}
 
 
 private:

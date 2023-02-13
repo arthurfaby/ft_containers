@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 10:13:52 by afaby             #+#    #+#             */
-/*   Updated: 2023/01/26 15:17:19 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/07 14:47:11 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@
 #include <iostream>
 #include <ctime>
 #include <fstream>
+#include "utils/RBTree.hpp"
 
 // STACK TESTING
 void	test_stack_creation(void);
