@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/10 14:16:40 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/13 10:02:59 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/14 09:57:23 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,65 +14,53 @@
 #ifndef RBTREE_ITERATOR_HPP
 # define RBTREE_ITERATOR_HPP
 
-#include "./RBTree.hpp"
 #include "./bidirectional_iterator_tag.hpp"
 
 namespace ft
 {
 
 template<
-	class Key,
-	class T,
-	class Compare,
-	class Allocator
+	class ValueType
 >
 class Node;
 
-template<
-	class Key,
-	class T,
-	class Compare,
-	class Allocator
->
-class RBTree;
-
-template<class Key, class T, class Compare, class Allocator>
+template<class Key, class T>
 class RBTree_iterator
 {
 public:
-	typedef std::ptrdiff_t														difference_type;
-	typedef typename ft::RBTree<const Key, T, Compare, Allocator>::node_type	node_type;
-	typedef typename ft::RBTree<const Key, T, Compare, Allocator>::value_type	value_type;
-	typedef node_type*															node_pointer;
-	typedef value_type*															pointer;	
-	typedef value_type&															reference;
-	typedef ft::bidirectional_iterator_tag										iterator_category;
+	typedef std::ptrdiff_t						difference_type;
+	typedef ft::pair<const Key, T>				value_type;
+	typedef ft::Node<value_type>				node_type;
+	typedef node_type*							node_pointer;
+	typedef value_type*							pointer;	
+	typedef value_type&							reference;
+	typedef ft::bidirectional_iterator_tag		iterator_category;
 
 
 	/* Constructors */
 	RBTree_iterator(void) :
-		_target(NULL)
+		_target(NULL),
+		_root(NULL),
+		_end(NULL)
 	{
 	}
 
-	/* template<class Key2, class T2, class Compare2, class Allocator2> */
-	/* RBTree_iterator(const RBTree_iterator<Key2, T2, Compare2, Allocator2>& other) : */
-	/* 	_target(other.base()) */
-	/* { */
-	/* } */
-
-	operator RBTree_iterator< const Key, const T, Compare, Allocator>( void ) const
+	operator RBTree_iterator< const Key, const T>( void ) const
 	{
-		return (RBTree_iterator<const Key, const T, Compare, Allocator>(_target));
+		return (RBTree_iterator<const Key, const T>(_target, _root, _end));
 	}
 
 	RBTree_iterator( const RBTree_iterator& other ) :
-		_target(other.base())
+		_target(other.base()),
+		_root(other._root),
+		_end(other._end)
 	{
 	}
 
-	RBTree_iterator(node_pointer target) :
-		_target(target)
+	RBTree_iterator(node_pointer target, node_pointer root, node_pointer end) :
+		_target(target),
+		_root(root),
+		_end(end)
 	{
 	}
 
@@ -86,6 +74,8 @@ public:
 	RBTree_iterator&	operator=(const RBTree_iterator& other)
 	{
 		_target = other.base();
+		_root = other._root;
+		_end = other._end;
 		return (*this);
 	}	
 
@@ -112,22 +102,7 @@ public:
 		node_pointer	new_target(_target);
 		RBTree_iterator	tmp = *this;
 
-		if (_target == _target->getTree()->getEnd())
-			return (this->operator--(1));
-		if (_target == _target->getBottomRight(_target->getTree()->getRoot()))
-			new_target = _target->getTree()->getEnd();
-		else if (_target->getRight())
-			new_target = _target->getBottomLeft(_target->getRight());
-		else
-		{
-			new_target = _target->getParent();
-			while (new_target && _target->isRightChild())
-			{
-				new_target = new_target->getParent();
-				_target = _target->getParent();
-			}
-		}
-		_target = new_target;
+		this->operator++();
 		return (tmp);
 	}
 
@@ -135,10 +110,10 @@ public:
 	{
 		node_pointer	new_target(_target);
 
-		if (_target == _target->getTree()->getEnd())
+		if (_target == _end)
 			return (this->operator--());
-		if (_target == _target->getBottomRight(_target->getTree()->getRoot()))
-			new_target = _target->getTree()->getEnd();
+		if (_target == _target->getBottomRight(_root))
+			new_target = _end;
 		else if (_target->getRight())
 			new_target = _target->getBottomLeft(_target->getRight());
 		else
@@ -159,21 +134,7 @@ public:
 		node_pointer	new_target(_target);
 		RBTree_iterator	tmp = *this;
 
-		if (_target == _target->getTree()->getBottomLeft(_target->getTree()->getRoot()))
-			new_target = _target->getTree()->getEnd();
-		else if (_target == _target->getTree()->getEnd())
-			new_target = _target->getBottomRight(_target->getTree()->getRoot());
-		else if (_target->getLeft())
-			new_target = _target->getBottomRight(_target->getLeft());
-		{
-			new_target = _target->getParent();
-			while (new_target && _target->isLeftChild())
-			{
-				new_target = new_target->getParent();
-				_target = _target->getParent();
-			}
-		}
-		_target = new_target;
+		this->operator--();
 		return (tmp);
 	}
 
@@ -181,10 +142,10 @@ public:
 	{
 		node_pointer	new_target(_target);
 
-		if (_target == _target->getTree()->getBottomLeft(_target->getTree()->getRoot()))
-			new_target = _target->getTree()->getEnd();
-		else if (_target == _target->getTree()->getEnd())
-			new_target = _target->getBottomRight(_target->getTree()->getRoot());
+		if (_target == _target->getBottomLeft(_root))
+			new_target = _end;
+		else if (_target == _end)
+			new_target = _target->getBottomRight(_root);
 		else if (_target->getLeft())
 			new_target = _target->getBottomRight(_target->getLeft());
 		else
@@ -197,7 +158,7 @@ public:
 			}
 		}
 		_target = new_target;
-		return (*this);	
+		return (*this);
 	}
 
 	/* Comparisons operator */
@@ -216,6 +177,8 @@ public:
 
 private:
 	node_pointer	_target;
+	node_pointer	_end;
+	node_pointer	_root;
 
 };
 

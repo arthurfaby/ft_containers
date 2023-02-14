@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 19:11:14 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/13 10:41:31 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/14 09:42:31 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,19 +35,19 @@ class map
 
 public:
 
-	typedef Key																			key_type;
-	typedef T																			mapped_type;
-	typedef ft::pair<const Key, T>														value_type;
-	typedef size_t																		size_type;
-	typedef	std::ptrdiff_t																difference_type;
-	typedef Compare																		key_compare;
-	typedef Allocator																	allocator_type;
-	typedef value_type&																	reference;
-	typedef const value_type&															const_reference;
-	typedef typename Allocator::pointer													pointer;
-	typedef typename Allocator::const_pointer											const_pointer;
-	typedef ft::RBTree_iterator<const Key, T, Compare, Allocator>						iterator;
-	typedef ft::RBTree_iterator<const Key, const T, Compare, Allocator>					const_iterator;
+	typedef Key											key_type;
+	typedef T											mapped_type;
+	typedef ft::pair<const Key, T>						value_type;
+	typedef size_t										size_type;
+	typedef	std::ptrdiff_t								difference_type;
+	typedef Compare										key_compare;
+	typedef Allocator									allocator_type;
+	typedef value_type&									reference;
+	typedef const value_type&							const_reference;
+	typedef typename Allocator::pointer					pointer;
+	typedef typename Allocator::const_pointer			const_pointer;
+	typedef ft::RBTree_iterator<const Key, T>			iterator;
+	typedef ft::RBTree_iterator<const Key, const T>		const_iterator;
 	/* typedef typename ft::RBTree<const Key, T, Compare, Allocator>::iterator				iterator; */
 	/* typedef typename ft::RBTree<const Key, const T, Compare, Allocator>::const_iterator	const_iterator; */
 

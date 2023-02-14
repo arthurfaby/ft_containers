@@ -27,7 +27,6 @@ int	main(void)
 
 	NS::map<int, int>::const_iterator	it = m.begin();
 	/* NS::map<int, int>::iterator	it = m.begin(); */
-	--it;
 	for (int i = 0; i < 20; ++i, --it)
 		std::cout << it->first << std::endl;
 }

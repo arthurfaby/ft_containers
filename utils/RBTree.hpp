@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/07 10:33:59 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/13 11:08:29 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/14 09:47:10 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,6 @@
 namespace ft
 {
 
-template<
-	class Key,
-	class T,
-	class Compare,
-	class Allocator
->
-class RBTree;
-
 enum Color {BLACK_COLOR, RED_COLOR};
 
 template<class ValueType>
@@ -43,17 +35,16 @@ class Node
 {
 public:
 
-	typedef	ValueType							pair;
-	/* typedef ft::RBTree<const Key, T, Compare, Allocator>	rbtree; */
+	typedef	ValueType					pair;
+	typedef typename pair::first_type	Key;
+	typedef typename pair::second_type	T;
 
-
-	Node(pair pair, rbtree *tree) :
+	Node(pair pair) :
 		_pair(pair),
 		_parent(NULL),
 		_left(NULL),
 		_right(NULL),
-		_color(RED_COLOR),
-		_tree(tree)
+		_color(RED_COLOR)
 	{
 	}
 
@@ -62,8 +53,7 @@ public:
 		_parent(other._parent),
 		_left(other._left),
 		_right(other._right),
-		_color(other._color),
-		_tree(other._tree)
+		_color(other._color)
 	{
 	}
 
@@ -74,7 +64,6 @@ public:
 		_left = other._left;
 		_right = other._right;
 		_color = other._color;
-		_tree = other._tree;
 		return (*this);
 	}
 
@@ -105,11 +94,6 @@ public:
 	void	setColor(Color color)
 	{
 		_color = color;
-	}
-
-	void	setTree(rbtree *tree)
-	{
-		_tree = tree;
 	}
 
 	void	changeColor( void )
@@ -206,11 +190,6 @@ public:
 		return (_color);
 	}
 
-	/* rbtree*	getTree( void ) const */
-	/* { */
-	/* 	return (_tree); */
-	/* } */
-
 	bool	operator==(const Node& other)
 	{
 		if (_pair != other._pair)
@@ -221,28 +200,26 @@ public:
 			return (false);
 		if (_right != other._right)
 			return (false);
-		if (_tree != other._tree)
-			return (false);
 		return (true);
 	}
 
-	/* Node	*getBottomLeft(Node *node) const */
-	/* { */
-	/* 	if (!node) */
-	/* 		return (NULL); */
-	/* 	if (node->getLeft()) */
-	/* 		return (getBottomLeft(node->getLeft())); */
-	/* 	return (node); */
-	/* } */
+	Node	*getBottomLeft(Node *node) const
+	{
+		if (!node)
+			return (NULL);
+		if (node->getLeft())
+			return (getBottomLeft(node->getLeft()));
+		return (node);
+	}
 
-	/* Node	*getBottomRight(Node *node) const */
-	/* { */
-	/* 	if (!node) */
-	/* 		return (NULL); */
-	/* 	if (node->getRight()) */
-	/* 		return (getBottomRight(node->getRight())); */
-	/* 	return (node); */
-	/* } */
+	Node	*getBottomRight(Node *node) const
+	{
+		if (!node)
+			return (NULL);
+		if (node->getRight())
+			return (getBottomRight(node->getRight()));
+		return (node);
+	}
 
 private:
 	pair	_pair;
@@ -250,7 +227,6 @@ private:
 	Node	*_left;
 	Node	*_right;
 	Color	_color;
-	/* rbtree	*_tree; */
 	
 };
 
@@ -265,15 +241,15 @@ class RBTree
 {
 	public:
 
-	typedef ft::pair<const Key, T>											value_type;
-	typedef Node< value_type >												node_type;
-	typedef Allocator														allocator_type;
-	typedef Key																key_type;
-	typedef T																mapped_type;
-	typedef Compare															compare_type;
-	typedef ft::RBTree_iterator<const Key, T, Compare, Allocator>			iterator;
-	typedef ft::RBTree_iterator<const Key, const T, Compare, Allocator>		const_iterator;
-	typedef size_t															size_type;
+	typedef ft::pair<const Key, T>						value_type;
+	typedef Node< value_type >							node_type;
+	typedef Allocator									allocator_type;
+	typedef Key											key_type;
+	typedef T											mapped_type;
+	typedef Compare										compare_type;
+	typedef ft::RBTree_iterator<const Key, T>			iterator;
+	typedef ft::RBTree_iterator<const Key, const T>		const_iterator;
+	typedef size_t										size_type;
 
 
 
@@ -335,7 +311,7 @@ class RBTree
 		node_type *node;
 
 		node = this->getBottomLeft(_root);
-		return (iterator(node));
+		return (iterator(node, _root, _end));
 	}
 
 	const_iterator	begin( void ) const
@@ -343,17 +319,17 @@ class RBTree
 		node_type *node;
 
 		node = this->getBottomLeft(_root);
-		return (const_iterator(node));
+		return (const_iterator(node, _root, _end));
 	}
 
 	iterator	end( void )
 	{
-		return (iterator(_end));
+		return (iterator(_end, _root, _end));
 	}
 
 	const_iterator	end( void ) const
 	{
-		return (const_iterator(_end));
+		return (const_iterator(_end, _root, _end));
 	}
 
 	node_type*	find(const key_type &key)
@@ -367,7 +343,7 @@ class RBTree
 
 	void	insert(const value_type& pair)
 	{
-		node_type	*new_node = new node_type(pair, this);
+		node_type	*new_node = new node_type(pair);
 		node_type	*tmp;
 
 		if (this->find(pair.first))
@@ -761,7 +737,7 @@ private:
 	{
 		if (_end)
 			delete _end;
-		_end = new node_type(this->getBottomRight(_root)->getPair(), this);
+		_end = new node_type(this->getBottomRight(_root)->getPair());
 	}
 
 
