@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 13:29:49 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/13 19:07:42 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/14 16:39:03 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -366,16 +366,6 @@ public:
 					return (this->end() - 1);
 				}
 				return (this->choose_insert(pos, 1, value, value_type()));
-				/*
-				int			index_pos;
-
-				index_pos = pos - this->begin();
-				if (_size == _capacity)
-					this->check_and_reserve();
-				std::memmove(_data + index_pos + 1, _data + index_pos, sizeof(value_type) * (_size - index_pos));
-				_alloc.construct(_data + index_pos, value);
-				_size++;
-				return (this->begin() + index_pos);*/
 			}
 
 			void						insert( const_iterator pos,
@@ -383,16 +373,6 @@ public:
 												const value_type& value )
 			{
 				this->choose_insert(pos, count, value, value_type());
-			/*	int			index_pos;
-
-				index_pos = pos - this->begin();
-				while (_size + count > _capacity)
-					this->check_and_reserve();
-				std::memmove(_data + index_pos + count, _data + index_pos, sizeof(value_type) * (_size - index_pos));
-				_size += count;
-				while (count)
-					_alloc.construct(_data + index_pos + --count, value);
-				return (this->begin() + index_pos);*/
 			}
 
 			template < class InputIt >
@@ -402,17 +382,6 @@ public:
 												typename ft::enable_if<!ft::is_integral<InputIt>::value>::type* = 0)
 			{
 				return (this->choose_insert(pos, first, last, value_type()));
-				/*int			index_pos;
-				size_t		count = ft::distance(first, last);
-
-				index_pos = pos - this->begin();
-				while (_size + count > _capacity)
-					this->check_and_reserve();
-				std::memmove(_data + index_pos + count, _data + index_pos, sizeof(value_type) * (_size - index_pos));
-				_size += count;
-				while (count)
-					_alloc.construct(_data + index_pos + --count, *(--last));
-				return (this->begin() + index_pos);*/
 			}
 
 			iterator					erase( iterator pos )
@@ -560,13 +529,6 @@ private:
 			_data[i] = _data[i - count];
 		for (size_t i = 0; i < count; ++i)
 			_data[i + index_pos] = value;
-		/* for (int i = _size - index_pos; i >= 0; --i) */
-		/* 	_alloc.construct(_data + index_pos + count + i, _data[index_pos  + i]); */
-		 /* for (size_t i = 0; i < _size - index_pos; ++i) */
-			/* _alloc.construct(_data + index_pos + count + i, _data[index_pos + i]); */
-		/* _size += count; */
-		/* while (count) */
-			/* _alloc.construct(_data + index_pos + --count, value); */
 		return (this->begin() + index_pos);
 	}
 
