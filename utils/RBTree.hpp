@@ -1,4 +1,3 @@
-/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   RBTree.hpp                                         :+:      :+:    :+:   */
@@ -6,7 +5,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/07 10:33:59 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/14 09:47:10 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/15 18:08:55 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +47,8 @@ public:
 	{
 	}
 
-	Node(const Node& other) :
+	template<class ValueType2>
+	Node(const Node<ValueType2>& other) :
 		_pair(other._pair),
 		_parent(other._parent),
 		_left(other._left),
@@ -57,7 +57,8 @@ public:
 	{
 	}
 
-	Node&	operator=(const Node& other)
+	template<class ValueType2>
+	Node&	operator=(const Node<ValueType2>& other)
 	{
 		_pair = other._pair;
 		_parent = other._parent;
@@ -217,7 +218,29 @@ public:
 		if (!node)
 			return (NULL);
 		if (node->getRight())
+		/* { */
+		/* 	std::cout << node->getKey() << " :" << std::endl; */
+		/* 	std::cout << " - address : " << node << std::endl; */
+		/* 	std::cout << " - left : " << node->getLeft() << std::endl; */
+		/* 	if (node->getLeft()) */
+		/* 	{ */
+		/* 		std::cout << "   - key : " << node->getLeft()->getKey() << std::endl; */
+		/* 		std::cout << "   - value : " << node->getLeft()->getValue() << std::endl; */
+		/* 	} */
+		/* 	std::cout << " - right : " << node->getRight() << std::endl; */
+		/* 	if (node->getRight()) */
+		/* 	{ */
+		/* 		std::cout << "   - key : " << node->getRight()->getKey() << std::endl; */
+		/* 		std::cout << "   - value : " << node->getRight()->getValue() << std::endl; */
+		/* 	} */
+		/* 	std::cout << " - parent : " << node->getParent() << std::endl; */
+		/* 	if (node->getParent()) */
+		/* 	{ */
+		/* 		std::cout << "   - key : " << node->getParent()->getKey() << std::endl; */
+		/* 		std::cout << "   - value : " << node->getParent()->getValue() << std::endl; */
+		/* 	} */
 			return (getBottomRight(node->getRight()));
+		/* } */
 		return (node);
 	}
 
@@ -239,7 +262,7 @@ template<
 >
 class RBTree
 {
-	public:
+public:
 
 	typedef ft::pair<const Key, T>						value_type;
 	typedef Node< value_type >							node_type;
@@ -247,8 +270,8 @@ class RBTree
 	typedef Key											key_type;
 	typedef T											mapped_type;
 	typedef Compare										compare_type;
-	typedef ft::RBTree_iterator<const Key, T>			iterator;
-	typedef ft::RBTree_iterator<const Key, const T>		const_iterator;
+	typedef ft::RBTree_iterator<value_type>				iterator;
+	typedef ft::RBTree_iterator<const value_type>		const_iterator;
 	typedef size_t										size_type;
 
 
@@ -332,30 +355,36 @@ class RBTree
 		return (const_iterator(_end, _root, _end));
 	}
 
-	node_type*	find(const key_type &key)
+	node_type*	find(const key_type &key) const
 	{
 		node_type	*res;
 
 		res = find_recursive(_root, key);
+		if (!res)
+			return (_end);
 		return (res);
 	}
 
-
 	void	insert(const value_type& pair)
 	{
-		node_type	*new_node = new node_type(pair);
+		this->insert(pair, &_root);
+	}
+
+	void	insert(const value_type& pair, node_type **top)
+	{
 		node_type	*tmp;
 
-		if (this->find(pair.first))
+		if (this->find(pair.first) != _end)
 			return ;
-		if (_root == NULL)
+		node_type	*new_node = new node_type(pair);
+		if (*top == NULL)
 		{
-			_root = new_node;
-			_root->setColor(BLACK_COLOR);
+			*top = new_node;
+			(*top)->setColor(BLACK_COLOR);
 			this->check_end_modif();
 			return ;
 		}
-		tmp = _root;
+		tmp = *top;
 		while (tmp)
 		{
 			if (_compare_function(tmp->getKey(), pair.first) == 0)
@@ -385,19 +414,20 @@ class RBTree
 					tmp = tmp->getRight();
 			}
 		}
+		_root->setColor(BLACK_COLOR);
 		this->check_end_modif();
 	}
 
-	/* void	show( void ) */
-	/* { */
-	/* 	std::cout << "##################################################" << std::endl; */
-	/* 	if (_root) */
-	/* 		print2DUtil(_root, 0); */
-	/* 	else */
-	/* 		std::cerr << std::endl << "Can't show empty tree." << std::endl; */
-	/* 	std::cout << std::endl; */
-	/* 	std::cout << "##################################################" << std::endl; */
-	/* } */
+	void	show( void )
+	{
+		std::cout << "##################################################" << std::endl;
+		if (_root)
+			print2DUtil(_root, 0);
+		else
+			std::cerr << std::endl << "Can't show empty tree." << std::endl;
+		std::cout << std::endl;
+		std::cout << "##################################################" << std::endl;
+	}
 
 	node_type	*getBottomLeft(node_type *node) const
 	{
@@ -513,7 +543,9 @@ private:
 				y->getLeft()->setParent(y);
 			y->setColor(z->getColor());
 		}
+
 		delete z;
+		z = NULL;
 		if (y_original_color == BLACK_COLOR)
 			repair_tree_delete(x);
 		this->check_end_modif();
@@ -530,7 +562,7 @@ private:
 		if (v)
 			v->setParent(u->getParent());
 	}
-	node_type	*find_recursive(node_type *node, const key_type& key)
+	node_type	*find_recursive(node_type *node, const key_type& key) const
 	{
 		if (!node || node->getKey() == key)
 			return (node);
@@ -737,7 +769,9 @@ private:
 	{
 		if (_end)
 			delete _end;
-		_end = new node_type(this->getBottomRight(_root)->getPair());
+		_end = NULL;
+		if (_root)
+			_end = new node_type(this->getBottomRight(_root)->getPair());
 	}
 
 

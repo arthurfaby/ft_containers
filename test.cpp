@@ -3,30 +3,42 @@
 #include "./utils/make_pair.hpp"
 #include <iostream>
 #include <vector>
+#include "./utils/pair.hpp"
 
 #ifndef NS
 	#define NS std
 #endif
 
-int	main(void)
+template <class Key, class T>
+void	print(NS::map<Key, T>& lst)
 {
-	std::vector<std::pair<int, int> >	v;
-
-	v.push_back(std::make_pair(1, 1));
-	v.push_back(std::make_pair(2, 1));
-	v.push_back(std::make_pair(3, 1));
-	v.push_back(std::make_pair(4, 1));
-	v.push_back(std::make_pair(5, 1));
-	v.push_back(std::make_pair(6, 1));
-	v.push_back(std::make_pair(7, 1));
-	v.push_back(std::make_pair(8, 1));
-	v.push_back(std::make_pair(9, 1));
-	v.push_back(std::make_pair(10, 1));
-	const NS::map<int, int>	m(v.begin(), v.end());
-	/* NS::map<int, int>	m(v.begin(), v.end()); */
-
-	NS::map<int, int>::const_iterator	it = m.begin();
-	/* NS::map<int, int>::iterator	it = m.begin(); */
-	for (int i = 0; i < 20; ++i, --it)
-		std::cout << it->first << std::endl;
+	for (typename NS::map<Key, T>::iterator it = lst.begin(); it != lst.end(); it++)
+		std::cout << it->first << " => " << it->second << '\n';
 }
+
+int main ()
+{
+  NS::map<char,int> mymap;
+  NS::map<char,int>::iterator itlow,itup;
+
+  mymap['a']=20;
+  mymap['b']=40;
+  mymap['c']=60;
+  mymap['d']=80;
+  mymap['e']=100;
+
+  itlow=mymap.lower_bound ('b');  // itlow points to b
+  itup=mymap.upper_bound ('d');   // itup points to e (not d!)
+
+  std::cout << "low : " << itlow->first << '\n';
+  std::cout << "up : " << itup->first << '\n';
+
+ 	mymap.erase(itlow,itup);        // erases [itlow,itup)
+
+mymap.show();
+  // print content:
+  for (NS::map<char,int>::iterator it=mymap.begin(); it!=mymap.end(); ++it)
+    std::cout << it->first << " => " << it->second << '\n';
+
+  return 0;
+ }

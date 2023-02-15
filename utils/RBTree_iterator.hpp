@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/10 14:16:40 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/14 09:57:23 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/15 19:58:57 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #ifndef RBTREE_ITERATOR_HPP
 # define RBTREE_ITERATOR_HPP
 
+#include "./iterator_traits.hpp"
+#include "./RBTree.hpp"
 #include "./bidirectional_iterator_tag.hpp"
 
 namespace ft
@@ -24,43 +26,44 @@ template<
 >
 class Node;
 
-template<class Key, class T>
+template<class ValueType>
 class RBTree_iterator
 {
 public:
-	typedef std::ptrdiff_t						difference_type;
-	typedef ft::pair<const Key, T>				value_type;
+	typedef typename ft::iterator_traits<ValueType*>::difference_type	difference_type;
+	typedef typename ft::iterator_traits<ValueType*>::value_type		value_type;
+	typedef typename ft::iterator_traits<ValueType*>::pointer			pointer;
+	typedef typename ft::iterator_traits<ValueType*>::reference			reference;
+	typedef ft::random_access_iterator_tag								iterator_category;
 	typedef ft::Node<value_type>				node_type;
 	typedef node_type*							node_pointer;
-	typedef value_type*							pointer;	
-	typedef value_type&							reference;
-	typedef ft::bidirectional_iterator_tag		iterator_category;
 
 
 	/* Constructors */
 	RBTree_iterator(void) :
 		_target(NULL),
-		_root(NULL),
-		_end(NULL)
+		_end(NULL),
+		_root(NULL)
 	{
 	}
 
-	operator RBTree_iterator< const Key, const T>( void ) const
+	operator RBTree_iterator< const ValueType>( void ) const
 	{
-		return (RBTree_iterator<const Key, const T>(_target, _root, _end));
+		return (RBTree_iterator<const ValueType>(_target, _root, _end));
 	}
 
+	/* template<class Key2, class T2> */
 	RBTree_iterator( const RBTree_iterator& other ) :
 		_target(other.base()),
-		_root(other._root),
-		_end(other._end)
+		_end(other._end),
+		_root(other._root)
 	{
 	}
 
 	RBTree_iterator(node_pointer target, node_pointer root, node_pointer end) :
 		_target(target),
-		_root(root),
-		_end(end)
+		_end(end),
+		_root(root)
 	{
 	}
 
@@ -74,8 +77,8 @@ public:
 	RBTree_iterator&	operator=(const RBTree_iterator& other)
 	{
 		_target = other.base();
-		_root = other._root;
 		_end = other._end;
+		_root = other._root;
 		return (*this);
 	}	
 
@@ -99,7 +102,6 @@ public:
 	/* Increment / Decrement operator */
 	RBTree_iterator	operator++(int)
 	{
-		node_pointer	new_target(_target);
 		RBTree_iterator	tmp = *this;
 
 		this->operator++();
@@ -131,7 +133,6 @@ public:
 	
 	RBTree_iterator	operator--(int)
 	{
-		node_pointer	new_target(_target);
 		RBTree_iterator	tmp = *this;
 
 		this->operator--();
