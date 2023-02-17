@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 19:11:14 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/15 20:17:40 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/17 17:47:47 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "./utils/reverse_RBTree_iterator.hpp"
 #include "./utils/equal.hpp"
 
+#include <algorithm>
 #include <cstddef>
 
 namespace ft
@@ -54,30 +55,30 @@ public:
 	typedef ft::reverse_RBTree_iterator<const_iterator>	const_reverse_iterator;
 
 
-	/* Member classes */
-	class value_compare
-	{
-	public:
-		
-		/* Member types */
-		typedef bool		result_type;
-		typedef value_type	first_argument_type;
-		typedef value_type	second_argument_type;
-
-		/* Constructor */
-		value_compare(Compare c) :
-			comp(c)
+		/* Member classes */
+		class value_compare
 		{
-		}
+		public:
+			
+			/* Member types */
+			typedef bool		result_type;
+			typedef value_type	first_argument_type;
+			typedef value_type	second_argument_type;
 
-		bool	operator()( const value_type& lhs, const value_type& rhs ) const
-		{
-			return (comp(lhs.first, rhs.first));
-		}
+			/* Constructor */
+			value_compare(Compare c) :
+				comp(c)
+			{
+			}
 
-	protected:
-		Compare comp;
-	};
+			bool	operator()( const value_type& lhs, const value_type& rhs ) const
+			{
+				return (comp(lhs.first, rhs.first));
+			}
+
+		protected:
+			Compare comp;
+		};
 
 
 
@@ -113,7 +114,12 @@ public:
 				}
 			}
 
-			// map( const map& other );
+			map( const map& other ) :
+				_compare_function(other._compare_function),
+				_alloc(other._alloc),
+				_tree(other._tree)
+			{
+			}
 
 		// Destructor :
 			~map( void )
@@ -121,7 +127,13 @@ public:
 			}
 
 		// Copy assignement operator
-			// map&					operator=( const map& other );
+			map&					operator=( const map& other )
+			{
+				_compare_function = other._compare_function;
+				_alloc = other._alloc;
+				_tree = other._tree;
+				return (*this);
+			}
 
 		// Get allocator
 			allocator_type		get_alocator( void ) const
@@ -239,12 +251,19 @@ public:
 					res = false;
 				else
 					_tree.insert(value);
-				return (ft::make_pair<iterator, bool>(iterator(_tree.find(value.first), _tree.getRoot(), _tree.getEnd()), res));
+				return (ft::make_pair<iterator, bool>(iterator(_tree.find(value.first), _tree.getEnd()), res));
 			}
 
 			iterator					insert( iterator pos, const value_type& value )
 			{
-				node_type *node = _tree.find(pos->first);
+				iterator	save = this->find(value.first);
+				if (save != end())
+					return (save);
+				node_type	*node;
+				if (pos == end())
+					node = _tree.getBottomRight();
+				else
+					node = _tree.find(pos->first);
 				if (pos == begin())
 				{
 					if (pos != end() && !_compare_function(pos->first, value.first))
@@ -254,7 +273,7 @@ public:
 				}
 				else if (pos == end())
 				{
-					if (pos != begin() && _compare_function(pos->first, value.first))
+					if (pos != begin() && _compare_function((--pos)->first, value.first))
 						_tree.insert(value, &node);
 					else
 						_tree.insert(value);
@@ -275,18 +294,18 @@ public:
 			}
 			
 
-			void						erase( iterator pos )
+			void					erase( iterator pos )
 			{
 				_tree.erase(pos);
 			}
 
-			void						erase( iterator first, iterator last )
+			void					erase( iterator first, iterator last )
 			{
 				iterator	save = first;
-				while (save != last)
+				while (first != last)
 				{
-					save++;
-					_tree.erase(first);
+					++save;
+					this->erase(first);
 					first = save;
 				}
 			}
@@ -294,9 +313,9 @@ public:
 			size_type				erase( const key_type& key )
 			{
 				node_type	*node = _tree.find(key);
-				if (node)
+				if (node != _tree.getEnd())
 				{
-					_tree.erase(iterator(node, _tree.getRoot(), _tree.getEnd()));
+					_tree.erase(iterator(node, _tree.getEnd()));
 					return (1);
 				}
 				return (0);
@@ -306,7 +325,7 @@ public:
 			{
 				std::swap(_compare_function, other._compare_function);
 				std::swap(_alloc, other._alloc);
-				std::swap(_tree, other._tree);
+				_tree.swap(other._tree);
 			}
 
 		// Lookup
@@ -317,12 +336,18 @@ public:
 
 			iterator									find( const key_type& key )
 			{
-				return (iterator(_tree.find(key), _tree.getRoot(), _tree.getEnd()));
+				node_type	*node = _tree.find(key);
+				if (node == _tree.getEnd())
+					return (this->end());
+				return (iterator(node, _tree.getEnd()));
 			}
 			
 			const_iterator							find( const key_type& key ) const
 			{
-				return (const_iterator(_tree.find(key), _tree.getRoot(), _tree.getEnd()));
+				node_type	*node = _tree.find(key);
+				if (node == _tree.getEnd())
+					return (this->end());
+				return (const_iterator(node, _tree.getEnd()));
 			}
 
 			ft::pair<iterator, iterator>				equal_range( const key_type& key )
@@ -334,30 +359,24 @@ public:
 				return (ft::make_pair<const_iterator, const_iterator>(lower_bound(key), upper_bound(key)));
 			}
 
-			iterator									lower_bound(const key_type& key )
+			iterator									lower_bound( const key_type& key )
 			{
-				return (this->find(key));
+				return (_tree.lower_bound(key));
 			}
 
-			const_iterator							lower_bound(const key_type& key ) const
+			const_iterator							lower_bound( const key_type& key ) const
 			{
-				return (this->find(key));
+				return (_tree.lower_bound(key));
 			}
 
 			iterator									upper_bound( const key_type& key )
 			{
-				iterator	it = this->find(key);
-				if ( it == end() )
-					return (it);
-				++it;
-				return (it);
+				return (_tree.upper_bound(key));
 			}
 
 			const_iterator							upper_bound( const key_type& key ) const
 			{
-				const_iterator	cit = this->find(key);
-				++cit;
-				return (cit);
+				return (_tree.upper_bound(key));
 			}
 
 		// Observers
