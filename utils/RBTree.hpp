@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/07 10:33:59 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/14 09:47:10 by afaby            ###   ########.fr       */
+/*   Created: 2023/02/16 09:29:37 by afaby             #+#    #+#             */
+/*   Updated: 2023/02/19 11:10:48 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # define RBTREE_HPP
 
 #include <functional>
+#include <algorithm>
 #include <cstddef>
 #include <iostream>
 
@@ -39,6 +40,15 @@ public:
 	typedef typename pair::first_type	Key;
 	typedef typename pair::second_type	T;
 
+	Node(void) :
+		_pair(ft::make_pair<Key, T>(Key(), T())),
+		_parent(NULL),
+		_left(NULL),
+		_right(NULL),
+		_color(RED_COLOR)
+	{
+	}
+
 	Node(pair pair) :
 		_pair(pair),
 		_parent(NULL),
@@ -48,7 +58,8 @@ public:
 	{
 	}
 
-	Node(const Node& other) :
+	template<class ValueType2>
+	Node(const Node<ValueType2>& other) :
 		_pair(other._pair),
 		_parent(other._parent),
 		_left(other._left),
@@ -57,7 +68,8 @@ public:
 	{
 	}
 
-	Node&	operator=(const Node& other)
+	template<class ValueType2>
+	Node&	operator=(const Node<ValueType2>& other)
 	{
 		_pair = other._pair;
 		_parent = other._parent;
@@ -234,22 +246,24 @@ private:
 template<
 	class Key,
 	class T,
-	class Compare = std::less<Key>,
+	class Compare,
+	class ValueComp,
 	class Allocator = std::allocator< ft::pair< const Key, T > >
 >
 class RBTree
 {
-	public:
+public:
 
-	typedef ft::pair<const Key, T>						value_type;
-	typedef Node< value_type >							node_type;
-	typedef Allocator									allocator_type;
-	typedef Key											key_type;
-	typedef T											mapped_type;
-	typedef Compare										compare_type;
-	typedef ft::RBTree_iterator<const Key, T>			iterator;
-	typedef ft::RBTree_iterator<const Key, const T>		const_iterator;
-	typedef size_t										size_type;
+	typedef ft::pair<const Key, T>									value_type;
+	typedef Node< value_type >										node_type;
+	typedef typename Allocator::template rebind<node_type>::other	allocator_type;
+	typedef Key														key_type;
+	typedef T														mapped_type;
+	typedef Compare													compare_type;
+	typedef ft::RBTree_iterator<value_type>							iterator;
+	typedef ft::RBTree_iterator<const value_type>					const_iterator;
+	typedef size_t													size_type;
+	typedef ValueComp												value_compare;
 
 
 
@@ -257,14 +271,89 @@ class RBTree
 		_root(NULL),
 		_end(NULL),
 		_alloc(allocator_type()),
-		_compare_function(compare_type())
+		_compare_function(compare_type()),
+		_value_comp(value_compare(_compare_function))
 	{
+		_end = _alloc.allocate(1);
+		_alloc.construct(_end, node_type());
 	}
 
 	~RBTree( void )
 	{
 		delete_subtree(_root);
-		delete _end;
+		_root = NULL;
+		if (_end)
+		{
+			_alloc.destroy(_end);
+			_alloc.deallocate(_end, 1);
+		}
+		_end = NULL;
+	}
+
+	RBTree( const RBTree& other ) :
+		_value_comp(other._compare_function)
+	{
+		if (!other._root)
+			_root = NULL;
+		else
+			_root = this->clone(NULL, other._root);
+		_end = _alloc.allocate(1);
+		if (!other._end)
+			_alloc.construct(_end, node_type());
+		else
+			_alloc.construct(_end, node_type(*other._end));
+		_alloc = other._alloc;
+		_compare_function = other._compare_function;
+	}
+
+	RBTree&	operator=(const RBTree& other)
+	{
+		if (this == &other)
+			return (*this);
+		if (_end)
+		{
+			_alloc.destroy(_end);
+			_alloc.deallocate(_end, 1);
+		}
+		if (_root)
+		{
+			delete_subtree(_root);
+			_root = NULL;
+		}
+		if (!other._root)
+			_root = NULL;
+		else
+			_root = this->clone(NULL, other._root);
+		_end = _alloc.allocate(1);
+		if (!other._end)
+			_alloc.construct(_end, node_type());
+		else
+			_alloc.construct(_end, node_type(*other._end));
+		_alloc = other._alloc;
+		_compare_function = other._compare_function;
+		_value_comp	= other._value_comp;
+		return (*this);
+	}
+
+	node_type*	clone(node_type *parent, node_type* node)
+	{
+		if (!node)
+			return (NULL);
+		node_type	*new_node = _alloc.allocate(1);
+		_alloc.construct(new_node, node_type(*node));
+		new_node->setParent(parent);
+		new_node->setLeft(this->clone(new_node, node->getLeft()));
+		new_node->setRight(this->clone(new_node, node->getRight()));
+		return (new_node);
+	}
+
+	void	swap(RBTree& other)
+	{
+		std::swap(_root, other._root);
+		std::swap(_end, other._end);
+		std::swap(_alloc, other._alloc);
+		std::swap(_compare_function, other._compare_function);
+		std::swap(_value_comp, other._value_comp);
 	}
 
 	size_type	size( void ) const
@@ -302,7 +391,7 @@ class RBTree
 
 	void	remove(const key_type& key)
 	{
-		this->remove_private(_root, key);
+		this->remove_private(key);
 		this->check_end_modif();
 	}
 
@@ -310,55 +399,66 @@ class RBTree
 	{
 		node_type *node;
 
+		if (!_root)
+			return (end());
 		node = this->getBottomLeft(_root);
-		return (iterator(node, _root, _end));
+		return (iterator(node, _end));
 	}
 
 	const_iterator	begin( void ) const
 	{
 		node_type *node;
 
+		if (!_root)
+			return (end());
 		node = this->getBottomLeft(_root);
-		return (const_iterator(node, _root, _end));
+		return (const_iterator(node, _end));
 	}
 
 	iterator	end( void )
 	{
-		return (iterator(_end, _root, _end));
+		return (iterator(_end, _end));
 	}
 
 	const_iterator	end( void ) const
 	{
-		return (const_iterator(_end, _root, _end));
+		return (const_iterator(_end, _end));
 	}
 
-	node_type*	find(const key_type &key)
+	node_type*	find(const key_type &key) const
 	{
 		node_type	*res;
 
 		res = find_recursive(_root, key);
+		if (!res)
+			return (_end);
 		return (res);
 	}
 
-
 	void	insert(const value_type& pair)
 	{
-		node_type	*new_node = new node_type(pair);
+		this->insert(pair, &_root);
+	}
+
+	void	insert(const value_type& pair, node_type **top)
+	{
 		node_type	*tmp;
 
-		if (this->find(pair.first))
+		if (this->find(pair.first) != _end)
 			return ;
-		if (_root == NULL)
+		node_type	*new_node = _alloc.allocate(1);
+		_alloc.construct(new_node, node_type(pair));
+		if (*top == NULL)
 		{
-			_root = new_node;
-			_root->setColor(BLACK_COLOR);
+			*top = new_node;
+			(*top)->setColor(BLACK_COLOR);
 			this->check_end_modif();
 			return ;
 		}
-		tmp = _root;
+		tmp = *top;
 		while (tmp)
 		{
-			if (_compare_function(tmp->getKey(), pair.first) == 0)
+			if (_value_comp(tmp->getPair(), pair) == 0)
 			{
 				if (!tmp->getLeft())
 				{
@@ -385,19 +485,20 @@ class RBTree
 					tmp = tmp->getRight();
 			}
 		}
+		_root->setColor(BLACK_COLOR);
 		this->check_end_modif();
 	}
 
-	/* void	show( void ) */
-	/* { */
-	/* 	std::cout << "##################################################" << std::endl; */
-	/* 	if (_root) */
-	/* 		print2DUtil(_root, 0); */
-	/* 	else */
-	/* 		std::cerr << std::endl << "Can't show empty tree." << std::endl; */
-	/* 	std::cout << std::endl; */
-	/* 	std::cout << "##################################################" << std::endl; */
-	/* } */
+	void	show( void ) const
+	{
+		std::cout << "##################################################" << std::endl;
+		if (_root)
+			print2DUtil(_root, 0);
+		else
+			std::cerr << std::endl << "Can't show empty tree." << std::endl;
+		std::cout << std::endl;
+		std::cout << "##################################################" << std::endl;
+	}
 
 	node_type	*getBottomLeft(node_type *node) const
 	{
@@ -425,9 +526,7 @@ class RBTree
 	void	clear( void )
 	{
 		while (_root)
-		{
 			this->remove(_root->getKey());
-		}
 	}
 
 	void	erase( iterator pos )
@@ -446,12 +545,12 @@ class RBTree
 		return (_root);
 	}
 
-
 private:
 	node_type		*_root;
 	node_type		*_end;
 	allocator_type	_alloc;
 	compare_type	_compare_function;
+	value_compare	_value_comp;
 
 	size_type	size_recursive( node_type *node ) const
 	{
@@ -468,17 +567,18 @@ private:
 			delete_subtree(node->getLeft());
 		if (node->getRight())
 			delete_subtree(node->getRight());
-		delete node;
+		_alloc.destroy(node);
+		_alloc.deallocate(node, 1);
 	}
 
-	void	remove_private(node_type *node, const key_type& key)
+	void	remove_private(const key_type& key)
 	{
 		node_type	*z;
 		node_type	*x;
 		node_type	*y;
 		Color		y_original_color;
 
-		z = find_recursive(node, key);
+		z = find_recursive(_root, key);
 		if (!z)
 			return ;
 		y = z;
@@ -513,7 +613,9 @@ private:
 				y->getLeft()->setParent(y);
 			y->setColor(z->getColor());
 		}
-		delete z;
+		_alloc.destroy(z);
+		_alloc.deallocate(z, 1);
+		z = NULL;
 		if (y_original_color == BLACK_COLOR)
 			repair_tree_delete(x);
 		this->check_end_modif();
@@ -530,7 +632,8 @@ private:
 		if (v)
 			v->setParent(u->getParent());
 	}
-	node_type	*find_recursive(node_type *node, const key_type& key)
+
+	node_type	*find_recursive(node_type *node, const key_type& key) const
 	{
 		if (!node || node->getKey() == key)
 			return (node);
@@ -619,27 +722,33 @@ private:
 				if (s->isRed())
 				{
 					s->setColor(BLACK_COLOR);
-					x->getLeft()->setColor(RED_COLOR);
+					if (x->getLeft())
+						x->getLeft()->setColor(RED_COLOR);
 					rotateLeft(x->getParent());
 					x = x->getParent()->getRight();
 				}
-				if (s->getLeft()->isBlack() && s->getRight()->isBlack())
+				if (s->getLeft() && s->getLeft()->isBlack() && s->getRight()->isBlack())
 				{
 					s->setColor(RED_COLOR);
 					x = x->getParent();
 				}
 				else
 				{
-					if (s->getRight()->isBlack())
+					if (s->getRight() && s->getRight()->isBlack())
 					{
-						s->getLeft()->setColor(BLACK_COLOR);
+						if (s->getLeft())
+							s->getLeft()->setColor(BLACK_COLOR);
 						s->setColor(RED_COLOR);
 						rotateRight(s);
 						s = x->getParent()->getRight();
 					}
-					s->setColor(x->getParent()->getColor());
-					x->getParent()->setColor(BLACK_COLOR);
-					s->getRight()->setColor(BLACK_COLOR);
+					if (x->getParent())
+					{
+						s->setColor(x->getParent()->getColor());
+						x->getParent()->setColor(BLACK_COLOR);
+					}
+					if (s->getRight())
+						s->getRight()->setColor(BLACK_COLOR);
 					rotateLeft(x->getParent());
 					x = _root;
 				}
@@ -653,7 +762,8 @@ private:
 					s->setColor(BLACK_COLOR);
 					x->getParent()->setColor(RED_COLOR);
 					rotateLeft(x->getParent());
-					s = x->getParent()->getLeft();
+					if (x->getParent())
+						s = x->getParent()->getLeft();
 				}
 				if (s->getLeft()->isBlack() && s->getRight()->isBlack())
 				{
@@ -736,14 +846,14 @@ private:
 	void	check_end_modif( void )
 	{
 		if (_end)
-			delete _end;
-		_end = new node_type(this->getBottomRight(_root)->getPair());
+			_end->setParent(_root);
+		return ;
 	}
 
 
-	#define COUNT 15
+	#define COUNT 20
 
-	void	print2DUtil(node_type* root, int space)
+	void	print2DUtil(node_type* root, int space) const
 	{
 		if (root == NULL)
 			return ;
@@ -755,7 +865,7 @@ private:
 			std::cout << " ";
 		if (root->getColor() == RED_COLOR)
 			std::cout << RED_PRINT;
-		std::cout << root->getPair().first << "\e[0m" <<  " (" << root->getPair().second << ")" << std::endl;
+		std::cout << root->getPair().first << "\e[0m" <<  " (" << root << ", " << root->getParent() << ", " << root->getLeft() << ", " << root->getRight () << ")" << std::endl;
 		print2DUtil(root->getLeft(), space);
 	}
 };

@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/02 16:49:27 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/06 11:37:04 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/15 10:07:18 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,7 @@ public:
 
 
 	// Arithmetic operators
-	difference_type	operator-(const reverse_iterator& other) const
-	{
-		return (other._it - this->_it);
-	}
+
 
 	reverse_iterator	operator+(difference_type n) const
 	{
@@ -177,11 +174,6 @@ public:
 		return (_it <= other.base());
 	}
 
-	/* pointer	base(void) const */
-	/* { */
-	/* 	return (_it.base()); */
-	/* } */
-
 	iterator_type	base(void) const
 	{
 		return (_it);
@@ -206,6 +198,11 @@ reverse_iterator<T>	operator-(typename reverse_iterator<T>::difference_type n, c
 	reverse_iterator<T>	res(it - n);
 	return (res);
 }
-
+	
+template<class It, class It2>
+std::ptrdiff_t	operator-(const reverse_iterator<It>& lhs, const reverse_iterator<It2>& rhs)
+{
+	return (rhs.base() - lhs.base());
+}
 
 }

@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/04 09:36:23 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/13 19:09:05 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/15 19:30:15 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,8 @@ class random_access_iterator
 {
 
 public:
-	/* typedef std::ptrdiff_t					difference_type; */
-	/* typedef T								value_type; */
-	/* typedef T*								pointer; */
-	/* typedef T&								reference; */
-	/* typedef ft::random_access_iterator_tag	iterator_category; */
 
+	// Member types
 	typedef typename ft::iterator_traits<T>::difference_type	difference_type;
 	typedef typename ft::iterator_traits<T>::value_type			value_type;
 	typedef typename ft::iterator_traits<T>::pointer			pointer;
@@ -65,10 +61,7 @@ public:
 	}
 
 	// Arithemtic operators
-	difference_type	operator-(const random_access_iterator& other) const
-	{
-		return (this->_target - other._target);
-	}
+
 
 	random_access_iterator operator+(difference_type n) const	
 	{
@@ -229,6 +222,12 @@ random_access_iterator<T> operator-(std::ptrdiff_t n, const random_access_iterat
 {
 	random_access_iterator<T>	res(it.base() - n);
 	return (res);
+}
+
+template <class It, class It2>
+std::ptrdiff_t	operator-(const random_access_iterator<It>& lhs, const random_access_iterator<It2>& rhs)
+{
+	return (lhs.base() - rhs.base());
 }
 
 }

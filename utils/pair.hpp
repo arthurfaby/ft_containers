@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/02 15:00:51 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/10 14:13:47 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/15 10:48:48 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,8 @@ public:
 	{
 	}
 
-	pair&	operator=(const pair& other)
+	template<class U1, class U2>
+	pair&	operator=(const pair<U1, U2>& other)
 	{
 		this->first = other.first;
 		this->second = other.second;
