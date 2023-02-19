@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/16 09:29:37 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/17 17:47:18 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/19 11:10:48 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,6 +247,7 @@ template<
 	class Key,
 	class T,
 	class Compare,
+	class ValueComp,
 	class Allocator = std::allocator< ft::pair< const Key, T > >
 >
 class RBTree
@@ -262,7 +263,7 @@ public:
 	typedef ft::RBTree_iterator<value_type>							iterator;
 	typedef ft::RBTree_iterator<const value_type>					const_iterator;
 	typedef size_t													size_type;
-
+	typedef ValueComp												value_compare;
 
 
 
@@ -270,7 +271,8 @@ public:
 		_root(NULL),
 		_end(NULL),
 		_alloc(allocator_type()),
-		_compare_function(compare_type())
+		_compare_function(compare_type()),
+		_value_comp(value_compare(_compare_function))
 	{
 		_end = _alloc.allocate(1);
 		_alloc.construct(_end, node_type());
@@ -288,7 +290,8 @@ public:
 		_end = NULL;
 	}
 
-	RBTree( const RBTree& other )
+	RBTree( const RBTree& other ) :
+		_value_comp(other._compare_function)
 	{
 		if (!other._root)
 			_root = NULL;
@@ -328,6 +331,7 @@ public:
 			_alloc.construct(_end, node_type(*other._end));
 		_alloc = other._alloc;
 		_compare_function = other._compare_function;
+		_value_comp	= other._value_comp;
 		return (*this);
 	}
 
@@ -349,6 +353,7 @@ public:
 		std::swap(_end, other._end);
 		std::swap(_alloc, other._alloc);
 		std::swap(_compare_function, other._compare_function);
+		std::swap(_value_comp, other._value_comp);
 	}
 
 	size_type	size( void ) const
@@ -453,7 +458,7 @@ public:
 		tmp = *top;
 		while (tmp)
 		{
-			if (_compare_function(tmp->getKey(), pair.first) == 0)
+			if (_value_comp(tmp->getPair(), pair) == 0)
 			{
 				if (!tmp->getLeft())
 				{
@@ -540,72 +545,12 @@ public:
 		return (_root);
 	}
 
-	iterator	lower_bound( const key_type& key )
-	{
-		iterator	it = this->begin();
-		iterator	ite = this->end();
-
-		while (it != ite)
-		{
-			if (_compare_function(it->first, key) == false)
-				return (it);
-			++it;
-		}
-		return (ite);
-	}
-
-	const_iterator	lower_bound( const key_type& key ) const
-	{
-		const_iterator	it = this->begin();
-		const_iterator	ite = this->end();
-
-		while (it != ite)
-		{
-			if (_compare_function(it->first, key) == false)
-				return (it);
-			++it;
-		}
-		return (ite);
-	}
-
-	iterator	upper_bound( const key_type& key )
-	{
-		iterator	it = this->begin();
-		iterator	ite = this->end();
-
-		while (it != ite)
-		{
-			if (_compare_function(key, it->first) == true)
-				return (it);
-			else if (_compare_function(key, it->first) == false && _compare_function(it->first, key) == false)
-				return (++it);
-			++it;
-		}
-		return (ite);
-	}
-
-	const_iterator	upper_bound( const key_type& key ) const
-	{
-		const_iterator	it = this->begin();
-		const_iterator	ite = this->end();
-
-		while (it != ite)
-		{
-			if (_compare_function(key, it->first) == true)
-				return (it);
-			else if (_compare_function(key, it->first) == false && _compare_function(it->first, key) == false)
-				return (++it);
-			++it;
-		}
-		return (ite);
-	}
-
-
 private:
 	node_type		*_root;
 	node_type		*_end;
 	allocator_type	_alloc;
 	compare_type	_compare_function;
+	value_compare	_value_comp;
 
 	size_type	size_recursive( node_type *node ) const
 	{

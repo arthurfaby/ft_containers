@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 19:11:14 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/17 17:47:47 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/19 11:03:05 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -266,14 +266,14 @@ public:
 					node = _tree.find(pos->first);
 				if (pos == begin())
 				{
-					if (pos != end() && !_compare_function(pos->first, value.first))
+					if (pos != end() && !value_comp()(*pos, value))
 						_tree.insert(value, &node);
 					else
 						_tree.insert(value);
 				}
 				else if (pos == end())
 				{
-					if (pos != begin() && _compare_function((--pos)->first, value.first))
+					if (pos != begin() && value_comp()(*(--pos), value))
 						_tree.insert(value, &node);
 					else
 						_tree.insert(value);
@@ -361,22 +361,62 @@ public:
 
 			iterator									lower_bound( const key_type& key )
 			{
-				return (_tree.lower_bound(key));
+				iterator	it = this->begin();
+				iterator	ite = this->end();
+
+				while (it != ite)
+				{
+					if (_compare_function(it->first, key) == false)
+						return (it);
+					++it;
+				}
+				return (ite);
 			}
 
 			const_iterator							lower_bound( const key_type& key ) const
 			{
-				return (_tree.lower_bound(key));
+				const_iterator	it = this->begin();
+				const_iterator	ite = this->end();
+
+				while (it != ite)
+				{
+					if (_compare_function(it->first, key) == false)
+						return (it);
+					++it;
+				}
+				return (ite);
 			}
 
 			iterator									upper_bound( const key_type& key )
 			{
-				return (_tree.upper_bound(key));
+				iterator	it = this->begin();
+				iterator	ite = this->end();
+
+				while (it != ite)
+				{
+					if (_compare_function(key, it->first) == true)
+						return (it);
+					else if (_compare_function(key, it->first) == false && _compare_function(it->first, key) == false)
+						return (++it);
+					++it;
+				}
+				return (ite);
 			}
 
 			const_iterator							upper_bound( const key_type& key ) const
 			{
-				return (_tree.upper_bound(key));
+				const_iterator	it = this->begin();
+				const_iterator	ite = this->end();
+
+				while (it != ite)
+				{
+					if (_compare_function(key, it->first) == true)
+						return (it);
+					else if (_compare_function(key, it->first) == false && _compare_function(it->first, key) == false)
+						return (++it);
+					++it;
+				}
+				return (ite);
 			}
 
 		// Observers
@@ -394,14 +434,14 @@ protected:
 
 private:
 
-	typedef	typename ft::RBTree<const key_type, mapped_type, key_compare, allocator_type>::node_type	node_type;
+	typedef	typename ft::RBTree<const key_type, mapped_type, key_compare, value_compare, allocator_type>::node_type	node_type;
 
 
 	key_compare		_compare_function;
 	allocator_type	_alloc;
 	
 
-	RBTree<const key_type, mapped_type, key_compare, allocator_type> _tree;
+	RBTree<const key_type, mapped_type, key_compare, value_compare, allocator_type> _tree;
 
 };
 
