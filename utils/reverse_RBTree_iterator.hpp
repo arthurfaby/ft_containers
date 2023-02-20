@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 19:28:48 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/15 19:54:14 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/20 10:26:17 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,12 @@ public:
 	{
 	}
 
-	reverse_RBTree_iterator(node_pointer target, node_pointer root, node_pointer end) :
-		_it(iterator_type(target, root, end))
+	reverse_RBTree_iterator(node_pointer target, node_pointer end) :
+		_it(iterator_type(target, end))
 	{
 	}
 
-	reverse_RBTree_iterator( const It& other ) :
+	reverse_RBTree_iterator( const iterator_type& other ) :
 		_it(other)
 	{
 		

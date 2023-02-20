@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/16 09:29:37 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/19 11:10:48 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/20 11:36:48 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -647,17 +647,20 @@ private:
 		node_type	*second;
 
 		second = node->getRight();
-		node->setRight(second->getLeft());
-		if (second->getLeft())
+		if (second)
+			node->setRight(second->getLeft());
+		if (second && second->getLeft())
 			second->getLeft()->setParent(node);
-		second->setParent(node->getParent());
+		if (second)
+			second->setParent(node->getParent());
 		if (node->getParent() == NULL)
 			_root = second;
 		else if (node == node->getParent()->getLeft())
 			node->getParent()->setLeft(second);
 		else
 			node->getParent()->setRight(second);
-		second->setLeft(node);
+		if (second)
+			second->setLeft(node);
 		node->setParent(second);
 	}
 
@@ -714,12 +717,12 @@ private:
 
 		if (!x)
 			return ;
-		while (x != _root && x->isBlack())
+		while (x != _root && x && x->isBlack())
 		{
 			if (x->isLeftChild())
 			{
 				s = x->getParent()->getRight();
-				if (s->isRed())
+				if (s && s->isRed())
 				{
 					s->setColor(BLACK_COLOR);
 					if (x->getLeft())
@@ -727,14 +730,14 @@ private:
 					rotateLeft(x->getParent());
 					x = x->getParent()->getRight();
 				}
-				if (s->getLeft() && s->getLeft()->isBlack() && s->getRight()->isBlack())
+				if (s && s->getLeft() && s->getLeft()->isBlack() && s->getRight()->isBlack())
 				{
 					s->setColor(RED_COLOR);
 					x = x->getParent();
 				}
 				else
 				{
-					if (s->getRight() && s->getRight()->isBlack())
+					if (s && s->getRight() && s->getRight()->isBlack())
 					{
 						if (s->getLeft())
 							s->getLeft()->setColor(BLACK_COLOR);
@@ -744,10 +747,11 @@ private:
 					}
 					if (x->getParent())
 					{
-						s->setColor(x->getParent()->getColor());
+						if (s)
+							s->setColor(x->getParent()->getColor());
 						x->getParent()->setColor(BLACK_COLOR);
 					}
-					if (s->getRight())
+					if (s && s->getRight())
 						s->getRight()->setColor(BLACK_COLOR);
 					rotateLeft(x->getParent());
 					x = _root;
@@ -779,15 +783,18 @@ private:
 						rotateLeft(s);
 						s = x->getParent()->getLeft();
 					}
-
-					s->setColor(x->getParent()->getColor());
-					x->getParent()->setColor(BLACK_COLOR);
+					if (x->getParent())
+					{
+						s->setColor(x->getParent()->getColor());
+						x->getParent()->setColor(BLACK_COLOR);
+					}
 					s->getLeft()->setColor(BLACK_COLOR);
 					x = _root;
 				}
 			}
 		}
-		x->setColor(BLACK_COLOR);
+		if (x)
+			x->setColor(BLACK_COLOR);
 		this->check_end_modif();
 	}
 

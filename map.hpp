@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 19:11:14 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/19 11:03:05 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/20 11:27:03 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,16 +145,16 @@ public:
 			mapped_type&			at( const key_type& key )
 			{
 				node_type	*node = _tree.find(key);
-				if (!node)
+				if (node == _tree.getEnd())
 					throw std::out_of_range("map::at");
-				return (node->getValue());
+				return (node->getReelPair().second);
 			}
 			const mapped_type&	at( const key_type& key ) const
 			{
 				node_type	*node = _tree.find(key);
-				if (!node)
+				if (node == _tree.getEnd())
 					throw std::out_of_range("map::at");
-				return (node->getValue());
+				return (node->getReelPair().second);
 			}
 
 			mapped_type&			operator[]( const key_type& key )
@@ -212,7 +212,7 @@ public:
 
 			const_reverse_iterator	rend( void ) const
 			{
-				reverse_iterator	crite(this->begin());
+				const_reverse_iterator	crite(this->begin());
 
 				return (crite);
 			}
@@ -361,62 +361,50 @@ public:
 
 			iterator									lower_bound( const key_type& key )
 			{
-				iterator	it = this->begin();
-				iterator	ite = this->end();
-
-				while (it != ite)
-				{
+				iterator	it = this->find(key);
+				if (it != end())
+					return (it);
+				it = begin();
+				for (; it != end(); ++it)
 					if (_compare_function(it->first, key) == false)
-						return (it);
-					++it;
-				}
-				return (ite);
+						return (it); 
+				return (it);
 			}
 
 			const_iterator							lower_bound( const key_type& key ) const
 			{
-				const_iterator	it = this->begin();
-				const_iterator	ite = this->end();
-
-				while (it != ite)
-				{
+				const_iterator	it = this->find(key);
+				if (it != end())
+					return (it);
+				it = begin();
+				for (; it != end(); ++it)
 					if (_compare_function(it->first, key) == false)
-						return (it);
-					++it;
-				}
-				return (ite);
+						return (it); 
+				return (it);
 			}
 
 			iterator									upper_bound( const key_type& key )
 			{
-				iterator	it = this->begin();
-				iterator	ite = this->end();
-
-				while (it != ite)
-				{
-					if (_compare_function(key, it->first) == true)
+				iterator it = this->find(key);
+				if (it != end())
+					return (++it);
+				it = begin();
+				for (; it != end(); ++it)
+					if (_compare_function(key, it->first))
 						return (it);
-					else if (_compare_function(key, it->first) == false && _compare_function(it->first, key) == false)
-						return (++it);
-					++it;
-				}
-				return (ite);
+				return (it);
 			}
 
 			const_iterator							upper_bound( const key_type& key ) const
 			{
-				const_iterator	it = this->begin();
-				const_iterator	ite = this->end();
-
-				while (it != ite)
-				{
-					if (_compare_function(key, it->first) == true)
+				const_iterator it = this->find(key);
+				if (it != end())
+					return (++it);
+				it = begin();
+				for (; it != end(); ++it)
+					if (_compare_function(key, it->first))
 						return (it);
-					else if (_compare_function(key, it->first) == false && _compare_function(it->first, key) == false)
-						return (++it);
-					++it;
-				}
-				return (ite);
+				return (it);
 			}
 
 		// Observers
