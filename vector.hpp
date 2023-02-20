@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 13:29:49 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/15 09:55:05 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/20 18:47:46 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ public:
 				_size(0),
 				_alloc(alloc)
 			{
-
 			}
 
 			explicit vector( size_type count,
@@ -100,7 +99,7 @@ public:
 
 			vector( const vector& other ) :
 				_data(NULL),
-				_capacity(other._capacity),
+				_capacity(other._size),
 				_size(other._size),
 				_alloc(other._alloc)
 			{
@@ -131,7 +130,7 @@ public:
 					_alloc.deallocate(_data, _capacity);
 				}
 				//std::cout << "SIZE : " << _size << std::endl; // "   CAPACITY : " << _capacity << std::endl;
-				_capacity = other._capacity;
+				_capacity = other._size;
 				_size = other._size;
 				_alloc = other._alloc;
 				_data = _alloc.allocate(_capacity);
@@ -499,6 +498,8 @@ private:
 
 
 		index_pos = pos - this->begin();
+		/* if (_size + count > _capacity) */
+		/* 	this->reserve(_size + count); */
 		while (_size + count > _capacity)
 			this->check_and_reserve();
 		std::memmove(_data + index_pos + count, _data + index_pos, sizeof(value_type) * (_size - index_pos));
@@ -519,6 +520,8 @@ private:
 	
 
 		index_pos = pos - this->begin();
+		/* if (_size + count > _capacity) */
+		/* 	this->reserve(_size + count); */
 		while (_size + count > _capacity)
 			this->check_and_reserve();
 
@@ -544,6 +547,8 @@ private:
 		size_t		count = ft::distance(first, last);
 
 		index_pos = pos - this->begin();
+		/* if (_size + count > _capacity) */
+			/* this->reserve(_size + count); */
 		while (_size + count > _capacity)
 			this->check_and_reserve();
 		std::memmove(_data + index_pos + count, _data + index_pos, sizeof(value_type) * (_size - index_pos));
@@ -565,6 +570,8 @@ private:
 		size_t		count = ft::distance(first, last);
 
 		index_pos = pos - this->begin();
+		/* while (_size + count > _capacity) */
+		/* 	this->reserve(_size ? 1 : _size * 2); */
 		while (_size + count > _capacity)
 			this->check_and_reserve();
 

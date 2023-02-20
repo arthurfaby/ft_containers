@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/16 09:29:37 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/20 11:36:48 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/20 18:58:06 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -781,7 +781,8 @@ private:
 						s->getRight()->setColor(BLACK_COLOR);
 						s->setColor(RED_COLOR);
 						rotateLeft(s);
-						s = x->getParent()->getLeft();
+						if (x->getParent())
+							s = x->getParent()->getLeft();
 					}
 					if (x->getParent())
 					{
