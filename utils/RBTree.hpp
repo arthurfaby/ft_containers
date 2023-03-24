@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/16 09:29:37 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/20 18:58:06 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/22 10:43:47 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include "./make_pair.hpp"
 #include "./pair.hpp"
 #include "./RBTree_iterator.hpp"
+#include "../vector.hpp"
 
 #define RED_PRINT	"\e[91m"
 
@@ -525,6 +526,8 @@ public:
 
 	void	clear( void )
 	{
+		/* delete_subtree(_root); */
+		/* _root = NULL; */
 		while (_root)
 			this->remove(_root->getKey());
 	}
