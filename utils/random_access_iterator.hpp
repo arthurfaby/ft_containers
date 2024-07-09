@@ -182,33 +182,6 @@ private:
 
 };
 
-
-// Not friend comparisons operators
-
-/* template<class T> */
-/* bool	operator!=(const random_access_iterator<T>& lhs, const random_access_iterator<T>& rhs) */
-/* { */
-/* 	return (!(lhs == rhs)); */
-/* } */
-
-/* template<class T> */
-/* bool	operator>(const random_access_iterator<T>& lhs, const random_access_iterator<T>& rhs) */
-/* { */
-/* 	return (rhs > lhs); */
-/* } */
-
-/* template<class T> */
-/* bool	operator<=(const random_access_iterator<T>& lhs, const random_access_iterator<T>& rhs) */
-/* { */
-/* 	return (!(rhs < lhs)); */
-/* } */
-
-/* template<class T> */
-/* bool	operator>=(const random_access_iterator<T>& lhs, const random_access_iterator<T>& rhs) */
-/* { */
-/* 	return (!(lhs < rhs)); */
-/* } */
-
 template<class T>
 random_access_iterator<T> operator+(std::ptrdiff_t n, const random_access_iterator<T>& it)
 {

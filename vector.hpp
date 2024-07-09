@@ -6,7 +6,7 @@
 /*   By: afaby <afaby@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 13:29:49 by afaby             #+#    #+#             */
-/*   Updated: 2023/02/15 09:55:05 by afaby            ###   ########.fr       */
+/*   Updated: 2023/02/21 10:36:43 by afaby            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ public:
 				_size(0),
 				_alloc(alloc)
 			{
-
 			}
 
 			explicit vector( size_type count,
@@ -100,7 +99,7 @@ public:
 
 			vector( const vector& other ) :
 				_data(NULL),
-				_capacity(other._capacity),
+				_capacity(other._size),
 				_size(other._size),
 				_alloc(other._alloc)
 			{
@@ -130,8 +129,7 @@ public:
 					this->clear();
 					_alloc.deallocate(_data, _capacity);
 				}
-				//std::cout << "SIZE : " << _size << std::endl; // "   CAPACITY : " << _capacity << std::endl;
-				_capacity = other._capacity;
+				_capacity = other._size;
 				_size = other._size;
 				_alloc = other._alloc;
 				_data = _alloc.allocate(_capacity);
@@ -404,7 +402,8 @@ public:
 
 			void						pop_back( void )
 			{
-				// Protect segfautl
+				if (_size == 0)
+					return ;
 				--_size;
 				_alloc.destroy(_data + _size);
 			}

@@ -34,7 +34,7 @@ public:
 	typedef typename ft::iterator_traits<ValueType*>::value_type		value_type;
 	typedef typename ft::iterator_traits<ValueType*>::pointer			pointer;
 	typedef typename ft::iterator_traits<ValueType*>::reference			reference;
-	typedef ft::random_access_iterator_tag								iterator_category;
+	typedef ft::bidirectional_iterator_tag								iterator_category;
 	typedef ft::Node<value_type>										node_type;
 	typedef node_type*													node_pointer;
 
